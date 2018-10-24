@@ -18,7 +18,7 @@ class ShowCommand extends Command
 
 	public function execute(InputInterface $input, OutputInterface $output)
 	{
-		$teams = $this->database->fetchAll('teams');
+		$teams = $this->fetchLeagueStandings();
 
 		if (! $this->updatedWithinTheLastDay()) {
 			// Load standings from api
@@ -30,14 +30,12 @@ class ShowCommand extends Command
 			// $this->storeData($teams);
 		}
 
-		// show all standings as a table
 		$table = new Table($output);
 
 		$table->setHeaders([
-			'Pos', 'W', 'L', 'City', 'Name', 'Team ID', 'GB', 'L-10', 'Lg', 'Div', 'W%', 'GP'
-		])
-			 ->setRows($teams)
-			 ->render();
+			'Pos', 'Div', 'Team', 'GP', 'W', 'L', 'GB', 'W%', 'L-10'
+		])->setRows($teams)
+		  ->render();
 
 	}
 
@@ -86,5 +84,10 @@ class ShowCommand extends Command
 	private function updatedWithinTheLastDay()
 	{
 		return Carbon::now()->diffInDays(Carbon::parse($this->database->lastUpdate())) < 1;
+	}
+
+	private function fetchLeagueStandings()
+	{
+		return $this->database->fetchLeagueStandings();
 	}
 }
