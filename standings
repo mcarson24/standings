@@ -4,8 +4,20 @@
 
 require __DIR__ . '/vendor/autoload.php';
 
+try {
+	$pdo = new PDO('sqlite:database.sqlite');
+
+	$pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+	$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (Exception $e) {
+	echo 'Could not connect to database.';
+	exit(1);
+}
+
+$dbAdapter = new StandingsApp\DatabaseAdapter($pdo);
+
 $app = new Symfony\Component\Console\Application('MLB Standings', '0.1.0');
 
-$app->add(new StandingsApp\ShowCommand);
+$app->add(new StandingsApp\ShowCommand($dbAdapter));
 
 $app->run();
