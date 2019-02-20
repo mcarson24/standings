@@ -29,24 +29,28 @@ class DatabaseAdapter
 
 	public function fetchLeagueStandings($division = '')
 	{
-		$sql = "
-			SELECT 
-				rank AS Pos,
-				conference || division AS Div,
-				first_name || ' ' || last_name AS Team,
+		$sql = "SELECT rank AS Pos, ";
+
+		if ($division == 'MLB') $sql .= "conference || division AS Div, ";
+
+		$sql .= "first_name || ' ' || last_name AS Team,
 				games_played AS GP,
 				won AS W,
 				lost AS L,
 				games_back as GB,
 				printf('%.3f', win_percentage) AS 'W%',
 				last_ten AS 'L-10'
-		 	FROM teams";
+		 		FROM teams";
 
 		if ($division != 'MLB') {
 			$sql .= " WHERE conference || division == '{$division}'";
 		}
-
-		$sql .= " ORDER BY win_percentage DESC";
+		if ($division != 'MLB') {
+			$sql .= " ORDER BY games_back";
+		}
+		if ($division == 'MLB') {
+			$sql .= " ORDER BY win_percentage DESC";
+		}
 
 		return $this->connection->query($sql)->fetchAll();
 	}
