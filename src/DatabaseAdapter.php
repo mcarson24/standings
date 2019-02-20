@@ -46,6 +46,8 @@ class DatabaseAdapter
 			$sql .= " WHERE conference || division == '{$division}'";
 		}
 
+		$sql .= " ORDER BY win_percentage DESC";
+
 		return $this->connection->query($sql)->fetchAll();
 	}
 

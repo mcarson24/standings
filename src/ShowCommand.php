@@ -32,7 +32,10 @@ class ShowCommand extends Command
 			$this->storeData($teams);
 		}
 		
-		$teams = $this->fetchLeagueStandings($input->getOption('div'));
+		if (!$teams = $this->fetchLeagueStandings($input->getOption('div'))) {
+			$output->writeln('That division does not exist.');
+			exit(0);
+		}
 		
 		$table = new Table($output);
 
