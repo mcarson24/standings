@@ -9,7 +9,7 @@ try {
 
 	$pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 	$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (Exception $e) {
+} catch (PDOException $e) {
 	echo 'Could not connect to database.';
 	exit(1);
 }

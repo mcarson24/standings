@@ -2,6 +2,8 @@
 
 namespace StandingsApp;
 
+use Carbon\Carbon;
+
 class DatabaseAdapter
 {
 	protected $connection;
@@ -25,9 +27,9 @@ class DatabaseAdapter
 		return $this->connection->query("SELECT * FROM {$table}")->fetchAll();
 	}
 
-	public function fetchLeagueStandings()
+	public function fetchLeagueStandings($division = '')
 	{
-		return $this->connection->query("
+		$sql = "
 			SELECT 
 				rank AS Pos,
 				conference || division AS Div,
@@ -38,8 +40,13 @@ class DatabaseAdapter
 				games_back as GB,
 				printf('%.3f', win_percentage) AS 'W%',
 				last_ten AS 'L-10'
-		 	FROM teams"
-		 )->fetchAll();
+		 	FROM teams";
+
+		if ($division != 'MLB') {
+			$sql .= " WHERE conference || division == '{$division}'";
+		}
+
+		return $this->connection->query($sql)->fetchAll();
 	}
 
 	public function lastUpdate()
@@ -51,7 +58,12 @@ class DatabaseAdapter
 		")->fetchColumn();
 	}
 
-	public function query($sql, $parameters)
+	public function clearStandings()
+	{
+		$this->query("DELETE FROM teams WHERE team_id > 'aaa'");
+	}
+
+	public function query($sql, $parameters = [])
 	{
 		$this->connection->prepare($sql)->execute($parameters);
 	}
