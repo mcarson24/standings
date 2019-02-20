@@ -6,11 +6,27 @@ use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class ShowCommand extends Command
 {
+	protected $divisions = [
+		'MLB' => 'Major League Baseball',
+		'ALE' => 'American League East',
+		'ALC' => 'American League Central',
+		'ALW' => 'American League West',
+		'NLE' => 'National League East',
+		'NLC' => 'National League Central',
+		'NLW' => 'National League West'
+	];
+
+	/**
+	 * Configure and set up the command.
+	 * 
+	 * @return void
+	 */
 	public function configure()
 	{
 		$this->setName('show')
@@ -18,6 +34,13 @@ class ShowCommand extends Command
 			 ->addOption('div', 'd', InputOption::VALUE_OPTIONAL, "Get standings for a single division ['ALE', 'ALC', 'ALW', 'NLE', 'NLC', 'NLW']", 'MLB');
 	}
 
+	/**
+	 * Execute the command.
+	 * 
+	 * @param  InputInterface  $input 
+	 * @param  OutputInterface $output
+	 * @return void
+	 */
 	public function execute(InputInterface $input, OutputInterface $output)
 	{	
 		if (! $this->updatedWithinTheLastDay()) {
@@ -37,15 +60,20 @@ class ShowCommand extends Command
 			exit(0);
 		}
 		
-		$table = new Table($output);
+		$inputOutput = new SymfonyStyle($input, $output);
 
-		$table->setHeaders([
-			'Pos', 'Div', 'Team', 'GP', 'W', 'L', 'GB', 'W%', 'L-10'
-		])->setRows($teams)
-		  ->render();
+		$inputOutput->title($this->divisions[$input->getOption('div')]);
+		$inputOutput->table(
+			['Pos', 'Div', 'Team', 'GP', 'W', 'L', 'GB', 'W%', 'L-10'],
+			$teams);
 
 	}
 
+	/**
+	 * Fetch the standings from the API.
+	 * 
+	 * @return array
+	 */
 	private function fetchStandings()
 	{
 		$client = new Client;
@@ -55,6 +83,12 @@ class ShowCommand extends Command
 		return $response['standing'];
 	}
 
+	/**
+	 * Remove unwanted information from the array.
+	 * 
+	 * @param  array $teams 
+	 * @return array
+	 */
 	private function truncate($teams)
 	{
 		$desired_values = [
@@ -94,16 +128,33 @@ class ShowCommand extends Command
 		);
 	}
 
+	/**
+	 * Determines if the standings have been updated within
+	 * the last day.
+	 * 
+	 * @return boolean
+	 */
 	private function updatedWithinTheLastDay()
 	{
 		return Carbon::now()->diffInDays(Carbon::parse($this->database->lastUpdate())) < 1;
 	}
 
+	/**
+	 * Clears the standings data from the teams table.
+	 * 
+	 * @return void
+	 */
 	private function clearStandings()
 	{
 		$this->database->clearStandings();
 	}
 
+	/**
+	 * Fetch the standings from the database.
+	 * 
+	 * @param  string $division 
+	 * @return array
+	 */
 	private function fetchLeagueStandings($division = '')
 	{
 		return $this->database->fetchLeagueStandings($division);
