@@ -22,6 +22,11 @@ class ShowCommand extends Command
 		'NLW' => 'National League West'
 	];
 
+	protected $tableHeaders = [
+		'mlb' => ['Pos', 'Div', 'Team', 'GP', 'W', 'L', 'GB', 'W%', 'L-10'],
+		'div' => ['Pos', 'Team', 'GP', 'W', 'L', 'GB', 'W%', 'L-10']
+	];
+
 	/**
 	 * Configure and set up the command.
 	 * 
@@ -55,18 +60,17 @@ class ShowCommand extends Command
 			$this->storeData($teams);
 		}
 		
+		$inputOutput = new SymfonyStyle($input, $output);
+
 		if (!$teams = $this->fetchLeagueStandings($input->getOption('div'))) {
-			$output->writeln('That division does not exist.');
+			$inputOutput->warning('That division does not exist.');
 			exit(0);
 		}
-		
-		$inputOutput = new SymfonyStyle($input, $output);
 
 		$inputOutput->title($this->divisions[$input->getOption('div')]);
 		$inputOutput->table(
-			['Pos', 'Div', 'Team', 'GP', 'W', 'L', 'GB', 'W%', 'L-10'],
+			$input->getOption('div') == 'MLB' ? $this->tableHeaders['mlb'] : $this->tableHeaders['div'],
 			$teams);
-
 	}
 
 	/**
