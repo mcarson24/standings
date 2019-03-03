@@ -61,7 +61,7 @@ class ShowCommand extends Command
 	public function execute(InputInterface $input, OutputInterface $output)
 	{	
 		$inputOutput = new SymfonyStyle($input, $output);
-		$division = $input->getOption('div');
+		$division = strtoupper($input->getOption('div'));
 
 		if (! $this->updatedWithinTheLastDay()) {
 			$this->database->clearStandings();

@@ -1,4 +1,6 @@
 {
+	"name": "mcarson24/standings",
+	"description": "Simple command line application to show Major League Baseball standings",
 	"require": {
 		"symfony/console": "~4.0",
 		"guzzlehttp/guzzle": "~6.0",
