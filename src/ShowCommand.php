@@ -63,7 +63,7 @@ class ShowCommand extends Command
 		$inputOutput = new SymfonyStyle($input, $output);
 		$division = strtoupper($input->getOption('div'));
 
-		if (! $this->updatedWithinTheLastDay()) {
+		if (! $this->updatedWithinLastSixHours()) {
 			$this->database->clearStandings();
 
 			$this->database->storeData($this->fetchStandings());
@@ -131,9 +131,9 @@ class ShowCommand extends Command
 	 * 
 	 * @return boolean
 	 */
-	private function updatedWithinTheLastDay()
+	private function updatedWithinLastSixHours()
 	{
-		return Carbon::now()->diffInDays(Carbon::parse($this->database->lastUpdate())) < 1;
+		return Carbon::now()->diffInHours(Carbon::parse($this->database->lastUpdate())) < 6;
 	}
 
 	/**
