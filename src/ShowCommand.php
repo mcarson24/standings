@@ -63,13 +63,11 @@ class ShowCommand extends Command
 		$inputOutput = new SymfonyStyle($input, $output);
 		$division = strtoupper($input->getOption('div'));
 
-		if (! $this->updatedWithinLastSixHours()) {
+		if (! $this->updatedWithinLastHour()) {
 			$this->database->clearStandings();
 
 			$this->database->storeData($this->fetchStandings());
 		}
-
-		$teams = $this->fetchLeagueStandings($division);
 
 		if (! $this->isAValidDivision($division)) {
 			$inputOutput->warning("That division does not exist. Fetching MLB standings...");
@@ -79,7 +77,7 @@ class ShowCommand extends Command
 		$inputOutput->title($this->divisions[$division]);
 		$inputOutput->table(
 			in_array($division, ['MLB', 'AL', 'NL']) ? $this->tableHeaders['mlb'] : $this->tableHeaders['div'],
-			$teams
+			$this->fetchLeagueStandings($division)
 		);
 	}
 
@@ -131,9 +129,9 @@ class ShowCommand extends Command
 	 * 
 	 * @return boolean
 	 */
-	private function updatedWithinLastSixHours()
+	private function updatedWithinLastHour()
 	{
-		return Carbon::now()->diffInHours(Carbon::parse($this->database->lastUpdate())) < 6;
+		return Carbon::now()->diffInHours(Carbon::parse($this->database->lastUpdate())) < 1;
 	}
 
 	/**
