@@ -4,4 +4,4 @@
 
 You know for all those times it's too difficult to navigate to a web page to see how far back your favorite team has fallen in the standings.
 
-Might eventually work in this further.  
+I might eventually work on this further.  
