@@ -66,7 +66,7 @@ class ShowCommand extends Command
 		if (! $this->updatedWithinLastHour()) {
 			$this->database->clearStandings();
 
-			$this->database->storeData($this->fetchStandings());
+			$this->database->storeData($this->fetchStandingsFromAPI());
 		}
 
 		if (! $this->isAValidDivision($division)) {
@@ -75,6 +75,7 @@ class ShowCommand extends Command
 		}
 
 		$inputOutput->title($this->divisions[$division]);
+
 		$inputOutput->table(
 			in_array($division, ['MLB', 'AL', 'NL']) ? $this->tableHeaders['mlb'] : $this->tableHeaders['div'],
 			$this->fetchLeagueStandings($division)
@@ -86,11 +87,9 @@ class ShowCommand extends Command
 	 * 
 	 * @return array
 	 */
-	private function fetchStandings()
+	private function fetchStandingsFromAPI()
 	{
-		$client = new Client;
-
-		$response = json_decode($client->request('GET', 'https://erikberg.com/mlb/standings.json')->getBody(), true);
+		$response = json_decode((new Client)->request('GET', 'https://erikberg.com/mlb/standings.json')->getBody(), true);
 		
 		return $this->truncate($response['standing']);
 	}
